@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="さんすう">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>ポケモン さんすうマスター</title>
+<style>
+:root{--y:#ffcb05;--b:#3b4cca;--r:#ee1515;--g:#3ab86b;--o:#ff9f1c}
+*{box-sizing:border-box}
+html,body{margin:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;background:linear-gradient(#bfe9ff,#fff6d6 55%,#c9f2c7) fixed;min-height:100dvh;color:#3a3a4a;overscroll-behavior:none}
+.wrap{max-width:820px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 110px)}
+.btn{border:none;border-radius:24px;padding:16px 18px;font:inherit;font-weight:800;font-size:22px;color:#fff;background:var(--b);box-shadow:0 6px 0 rgba(0,0,0,.22);cursor:pointer}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.22)}
+.btn.sm{font-size:18px;padding:10px 16px;border-radius:18px}
+.btn.gray{background:#8a8fa3}.btn.red{background:var(--r)}.btn.green{background:var(--g)}.btn.orange{background:var(--o)}.btn.pink{background:#ff5fa2}
+.btn[disabled]{opacity:.45}
+.card{background:#fff;border-radius:26px;padding:16px;box-shadow:0 5px 0 rgba(0,0,0,.08)}
+.row{display:flex;gap:10px;align-items:center}.sp{justify-content:space-between}
+h1,h2{margin:6px 0 10px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.chip{background:#fff;border-radius:999px;padding:8px 14px;font-weight:800;font-size:19px;box-shadow:0 3px 0 rgba(0,0,0,.08);display:flex;align-items:center;gap:6px}
+.pball{display:inline-block;width:22px;height:22px;border-radius:50%;border:2.5px solid #333;background:linear-gradient(#ee1515 46%,#333 46% 54%,#fff 54%);position:relative;flex:none}
+.pball:after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px;border-radius:50%;background:#fff;border:2px solid #333}
+.pball.gold{background:linear-gradient(#ffcb05 46%,#333 46% 54%,#fff8d0 54%)}
+.poke{display:block;object-fit:contain;pointer-events:none}
+.fb{font-size:60px;text-align:center}
+.partner-card{text-align:center;position:relative}
+.partner-card .poke{width:min(46vw,260px,30dvh);height:min(46vw,260px,30dvh);margin:0 auto;animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-10px) scale(1.03)}}
+.bubble{background:#fff9d6;border:3px solid var(--y);border-radius:20px;padding:10px 14px;font-weight:700;font-size:19px;margin:0 auto 6px;max-width:560px}
+.bar{height:16px;background:#e6e9f5;border-radius:99px;overflow:hidden;margin:6px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#ffcb05,#ff9f1c);border-radius:99px;transition:width .5s}
+.bar.hp>i{background:linear-gradient(90deg,#3ad07d,#a4e24a)}
+.ops{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.op{border-radius:26px;padding:16px 8px;color:#fff;text-align:center;font-weight:900;font-size:26px;box-shadow:0 6px 0 rgba(0,0,0,.22);cursor:pointer;border:none;font-family:inherit}
+.op:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.22)}
+.op b{display:block;font-size:44px;line-height:1.1}
+.mission{border:4px dashed var(--o);background:#fff7e6}
+.dots{display:flex;gap:8px;justify-content:center;margin:6px 0}
+.dot{width:26px;height:26px;border-radius:50%;background:#ddd;border:3px solid #bbb}.dot.on{background:var(--y);border-color:var(--o)}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:8px;padding:8px 10px calc(env(safe-area-inset-bottom) + 8px);background:rgba(255,255,255,.92);backdrop-filter:blur(8px);box-shadow:0 -3px 12px rgba(0,0,0,.1);z-index:5}
+.nav button{flex:1;max-width:150px;border:none;background:none;font:inherit;font-weight:800;font-size:14px;padding:4px;position:relative;color:#444}
+.nav button span{display:block;font-size:30px}
+.nav .badge{position:absolute;top:-2px;right:14%;background:var(--r);color:#fff;border-radius:99px;font-size:14px;min-width:22px;padding:1px 5px;font-weight:900}
+.lv{display:flex;align-items:center;gap:14px;background:#fff;border-radius:22px;padding:14px 18px;margin:10px 0;box-shadow:0 5px 0 rgba(0,0,0,.08);font-size:22px;font-weight:800;cursor:pointer;border:none;width:100%;font-family:inherit;color:inherit;text-align:left}
+.lv.lock{opacity:.5}.lv .st{margin-left:auto;font-size:30px;color:#ffb400;letter-spacing:2px;white-space:nowrap}
+.lv .n{background:var(--b);color:#fff;border-radius:50%;width:44px;height:44px;display:grid;place-items:center;flex:none}
+/* battle */
+.battle{display:flex;flex-direction:column;min-height:100dvh;max-width:820px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 8px) 14px calc(env(safe-area-inset-bottom) + 10px)}
+.field{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;position:relative;min-height:20dvh}
+.wildbox{flex:1;text-align:center}
+.wildbox .poke{height:clamp(90px,19dvh,230px);width:auto;max-width:100%;margin:0 auto}
+.mybox{width:34%;text-align:center}
+.mybox .poke{height:clamp(60px,12dvh,140px);width:auto;margin:0 auto}
+.hit{animation:hit .45s}.jump{animation:jump .45s}
+@keyframes hit{20%{transform:translateX(-14px) rotate(-6deg);filter:brightness(2)}40%{transform:translateX(14px) rotate(6deg)}60%{transform:translateX(-8px)}}
+@keyframes jump{30%{transform:translateY(-22px) translateX(30px)}}
+.qcard{background:#fff;border-radius:28px;padding:6px 14px;text-align:center;box-shadow:0 5px 0 rgba(0,0,0,.1);margin:8px 0}
+.q{font-size:clamp(40px,8dvh,84px);font-weight:900;letter-spacing:2px;line-height:1.15}
+.q .op2{color:var(--r);margin:0 8px}.q .ansv{display:inline-block;min-width:1.5em;border-bottom:6px solid var(--b);color:var(--b)}
+.fbk{min-height:28px;font-size:20px;font-weight:900}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto;padding-top:6px}
+.pad button{border:none;border-radius:20px;background:#fff;font:inherit;font-size:clamp(28px,5dvh,40px);font-weight:900;padding:clamp(6px,1.7dvh,20px) 0;box-shadow:0 5px 0 rgba(0,0,0,.15);color:#333}
+.pad button:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+.pad .go{background:var(--g);color:#fff;font-size:clamp(20px,3.4dvh,28px)}.pad .del{background:#ffe1e1}
+.hint{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;align-items:center;margin-top:6px}
+.hg{display:flex;flex-wrap:wrap;gap:3px;max-width:150px;justify-content:center}
+.hd{width:12px;height:12px;border-radius:50%;background:#ee5555}.hd.b{background:#4a7bff}.hd.x{background:#ccc;position:relative}
+.hd.x:after{content:"×";position:absolute;inset:-4px 0 0;font-size:14px;text-align:center;color:#888;font-weight:900}
+.hs{font-size:30px;font-weight:900}.hb{border:2px dashed #b9c0e0;border-radius:12px;padding:3px 5px}.hint{margin:6px 0 8px}
+/* overlays */
+#layer{position:fixed;inset:0;z-index:20;pointer-events:none}
+.ov{position:fixed;inset:0;background:rgba(20,20,60,.6);display:grid;place-items:center;padding:16px;pointer-events:auto;z-index:30;animation:fade .25s}
+.ov .card{max-width:520px;width:100%;text-align:center;max-height:92dvh;overflow:auto}
+.ov .poke{margin:0 auto;width:min(60vw,280px);height:min(60vw,280px)}
+@keyframes fade{from{opacity:0}}
+.cf{position:fixed;top:-40px;z-index:40;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+.newtag{display:inline-block;background:var(--r);color:#fff;font-weight:900;border-radius:99px;padding:2px 12px;animation:pulse .8s infinite}
+@keyframes pulse{50%{transform:scale(1.15)}}
+.bigball{width:150px;height:150px;border-width:8px;margin:20px auto}.bigball:after{width:36px;height:36px;margin:-18px;border-width:6px}
+.shake{animation:shake .5s infinite}
+@keyframes shake{20%{transform:rotate(-25deg)}50%{transform:rotate(25deg)}80%{transform:rotate(-10deg)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.zk{background:#fff;border-radius:18px;padding:6px;text-align:center;font-size:14px;font-weight:800;position:relative}
+.zk .poke{width:100%;aspect-ratio:1}.zk.no .poke{filter:brightness(0) opacity(.25)}
+.zk small{position:absolute;top:4px;right:6px;color:#fff;background:var(--b);border-radius:99px;padding:0 7px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.cal div{aspect-ratio:1;border-radius:14px;background:#fff;display:grid;place-items:center;font-weight:800;font-size:16px;position:relative}
+.cal .h{background:none;aspect-ratio:auto;font-size:14px}.cal .on{background:#fff2b3}.cal .today{outline:4px solid var(--b)}
+.cal .on i{font-style:normal;font-size:30px}.cal .num{position:absolute;top:2px;left:6px;font-size:12px;opacity:.6}
+table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #eee;text-align:center}
+input[type=text]{font:inherit;font-size:24px;padding:12px;border-radius:16px;border:3px solid var(--b);width:100%;text-align:center}
+@media (orientation:landscape) and (min-width:900px){.wrap{max-width:900px}
+.battle{max-width:1100px;display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:auto auto 1fr;column-gap:16px;align-content:start}
+.battle>.row{grid-column:1/3}.battle>.field{grid-column:1;grid-row:2;min-height:0}.battle>.qcard{grid-column:1;grid-row:3;align-self:start}
+.battle>.pad{grid-column:2;grid-row:2/4;margin:0;align-content:stretch}.pad button{font-size:clamp(28px,5dvh,44px)}
+.wildbox .poke{height:clamp(90px,24dvh,230px)}.mybox .poke{height:clamp(60px,15dvh,140px)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<script>
+'use strict';
+/* ===== 基本 ===== */
+const $=s=>document.querySelector(s), app=$('#app');
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a, pick=a=>a[rand(0,a.length-1)];
+const OPS={
+ add:{sym:'＋',name:'たしざん',c:'#ff6b6b',say:'たす',lv:['10までの たしざん','20までの たしざん','2けた ＋ 1けた','2けた ＋ 2けた']},
+ sub:{sym:'－',name:'ひきざん',c:'#3ba0ff',say:'ひく',lv:['10までの ひきざん','20までの ひきざん','2けた － 1けた','2けた － 2けた']},
+ mul:{sym:'×',name:'かけざん',c:'#3ab86b',say:'かける',lv:['2・5 の だん','3・4 の だん','6・7 の だん','8・9 の だん']},
+ div:{sym:'÷',name:'わりざん',c:'#b26bff',say:'わる',lv:['2・5 で わる','3・4 で わる','6・7 で わる','8・9 で わる']}
+};
+const OPK=['add','sub','mul','div'];
+/* ポケモン: id -> [なまえ, レア度 0=ふつう 1=レア 2=でんせつ] */
+const DEX={1:['フシギダネ',0],2:['フシギソウ',1],3:['フシギバナ',1],4:['ヒトカゲ',0],5:['リザード',1],6:['リザードン',1],7:['ゼニガメ',0],8:['カメール',1],9:['カメックス',1],
+25:['ピカチュウ',0],26:['ライチュウ',1],35:['ピッピ',0],37:['ロコン',0],39:['プリン',0],40:['プクリン',1],52:['ニャース',0],54:['コダック',0],94:['ゲンガー',1],
+129:['コイキング',0],130:['ギャラドス',1],131:['ラプラス',1],133:['イーブイ',0],134:['シャワーズ',1],135:['サンダース',1],136:['ブースター',1],143:['カビゴン',1],149:['カイリュー',1],
+150:['ミュウツー',2],151:['ミュウ',2],152:['チコリータ',0],155:['ヒノアラシ',0],158:['ワニノコ',0],172:['ピチュー',0],174:['ププリン',0],175:['トゲピー',0],176:['トゲチック',1],
+183:['マリル',0],184:['マリルリ',1],196:['エーフィ',1],197:['ブラッキー',1],249:['ルギア',2],251:['セレビィ',2],282:['サーナイト',1],300:['エネコ',0],384:['レックウザ',2],385:['ジラーチ',2],
+393:['ポッチャマ',0],394:['ポッタイシ',1],395:['エンペルト',1],447:['リオル',0],448:['ルカリオ',1],468:['トゲキッス',1],700:['ニンフィア',1],778:['ミミッキュ',1]};
+const IDS=Object.keys(DEX).map(Number);
+const BYR=r=>IDS.filter(i=>DEX[i][1]===r);
+/* なかま(しんかする): [なまえ, ステージのid] */
+const LINES={
+ pichu:{ids:[172,25,26]},hito:{ids:[4,5,6]},zeni:{ids:[7,8,9]},fushi:{ids:[1,2,3]},
+ eievui:{ids:[133,700]},puri:{ids:[174,39,40]},togepi:{ids:[175,176,468]},potty:{ids:[393,394,395]},riolu:{ids:[447,448]}
+};
+const EVO=[0,400,1200]; // このXPでしんか
+const stageOf=(k,xp)=>{const n=LINES[k].ids.length;let s=0;EVO.forEach((t,i)=>{if(i>0&&xp>=t)s=i});return Math.min(s,n-1)};
+const partnerId=()=>{const k=S.line;return LINES[k].ids[stageOf(k,S.xp[k]||0)]};
+const imgSrc=id=>`img/${id}.png`;
+function img(id,cls=''){return `<img class="poke ${cls}" src="${imgSrc(id)}" alt="" onerror="this.outerHTML='<div class=\\'fb\\'>⚡</div>'">`}
+
+/* ===== セーブ ===== */
+const KEY='pokemath-v1';
+const defaults=()=>({name:'',line:null,xp:{},balls:3,gold:0,owned:{},stars:{},streak:0,best:0,last:'',days:{},daily:{date:'',n:0,done:false},stats:{},sound:true,voice:false});
+let S=(()=>{try{return Object.assign(defaults(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return defaults()}})();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const today=()=>fmt(new Date()), yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return fmt(d)};
+const curStreak=()=>(S.last===today()||S.last===yesterday())?S.streak:0;
+const dailyN=()=>S.daily.date===today()?S.daily.n:0;
+const lvStars=(op,l)=>S.stars[op+l]||0;
+const unlocked=op=>{let l=1;while(l<4&&lvStars(op,l)>=2)l++;return l};
+const own=id=>{const n=S.owned[id]||0;S.owned[id]=n+1;return n===0};
+
+/* ===== おと ===== */
+let AC;
+function tone(f,d=.12,t='sine',at=0,v=.14){if(!S.sound)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),T=AC.currentTime+at;o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,T);g.gain.exponentialRampToValueAtTime(.001,T+d);o.connect(g);g.connect(AC.destination);o.start(T);o.stop(T+d+.02)}catch(e){}}
+const sfx={ok:()=>{tone(660,.1,'triangle');tone(990,.2,'triangle',.1)},ng:()=>tone(260,.3,'sine'),tap:()=>tone(520,.05,'square',0,.05),
+ win:()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,.28,'triangle',i*.11)),ball:()=>tone(400,.1,'square',0,.08),
+ evo:()=>[392,523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,.3,'triangle',i*.13))};
+function say(t){if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+function confetti(n=40){const e=['⭐','✨','🎉','💖','🎈','🌟'];for(let i=0;i<n;i++){const d=document.createElement('div');d.className='cf';d.textContent=pick(e);d.style.left=rand(0,98)+'vw';d.style.animationDuration=rand(18,34)/10+'s';d.style.fontSize=rand(20,40)+'px';d.style.animationDelay=rand(0,6)/10+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),4500)}}
+/* ポップアップ(Promise) */
+function popup(html,btn='OK',cls='btn'){return new Promise(res=>{const o=document.createElement('div');o.className='ov';o.innerHTML=`<div class="card">${html}<p><button class="${cls}" style="min-width:200px">${btn}</button></p></div>`;document.body.appendChild(o);o.querySelector('button').onclick=()=>{sfx.tap();o.remove();res()}})}
+function popup2(html,btns){return new Promise(res=>{const o=document.createElement('div');o.className='ov';o.innerHTML=`<div class="card">${html}<p class="row" style="justify-content:center;flex-wrap:wrap">${btns.map((b,i)=>`<button class="btn ${b[1]||''}" data-i="${i}">${b[0]}</button>`).join('')}</p></div>`;document.body.appendChild(o);o.querySelectorAll('button').forEach(b=>b.onclick=()=>{sfx.tap();o.remove();res(+b.dataset.i)})})}
+const pball=g=>`<span class="pball ${g?'gold':''}"></span>`;
+const nm=()=>S.name?S.name+'ちゃん':'きみ';
+
+/* ===== ホーム ===== */
+function greet(){
+ const st=curStreak(),n=dailyN();
+ if(n>=3)return pick([`きょうの ミッション クリア！ ${nm()}、すごい！`,`きょうも がんばったね！ だいすき！`]);
+ if(S.last===today())return pick([`いいちょうし！ あと ${3-n}かいで ごほうび だよ！`,`もっと いっしょに あそぼう！`]);
+ if(st>=2)return `${st}にち れんぞく！ きょうも きたね、${nm()}！`;
+ return pick([`${nm()}、きょうも いっしょに べんきょう しよう！`,`きょうは なにを がんばる？`,`バトルしよう！ ポケモンが まってるよ！`]);
+}
+function home(){
+ if(!S.line)return choosePartner(true);
+ const k=S.line,xp=S.xp[k]||0,L=LINES[k],s=stageOf(k,xp),pid=L.ids[s];
+ let next='';
+ if(s<L.ids.length-1){const a=EVO[s],b=EVO[s+1];next=`<div class="bar"><i style="width:${Math.min(100,(xp-a)/(b-a)*100)}%"></i></div><div style="font-size:15px;font-weight:700">しんかまで あと ${b-xp} ポイント</div>`}
+ else next=`<div style="font-size:16px;font-weight:800;color:#e07a00">✨ さいしゅう しんか！ ✨</div>`;
+ const n=dailyN();
+ app.innerHTML=`<div class="wrap">
+ <div class="topbar"><div class="chip">🔥 ${curStreak()}にち</div><div class="chip">${pball()}× ${S.balls} ${S.gold?`&nbsp;${pball(1)}× ${S.gold}`:''}</div></div>
+ <div class="card partner-card"><div class="bubble">${greet()}</div>${img(pid)}<div style="font-size:26px;font-weight:900">${DEX[pid][0]} <span style="font-size:18px">Lv.${Math.floor(xp/40)+1}</span></div>${next}</div>
+ <div class="card mission" style="margin-top:12px"><div class="row sp"><b style="font-size:21px">🎯 きょうの ミッション</b><span style="font-weight:800">バトル 3かい</span></div>
+  <div class="dots">${[0,1,2].map(i=>`<div class="dot ${i<n?'on':''}"></div>`).join('')}</div>
+  <div style="text-align:center;font-weight:800">${n>=3?'✅ クリア！ スーパーボール ゲット！':`ぜんぶ おわると ${pball(1)}スーパーボール！`}</div></div>
+ <div class="ops">${OPK.map(o=>`<button class="op" style="background:${OPS[o].c}" onclick="levels('${o}')"><b>${OPS[o].sym}</b>${OPS[o].name}</button>`).join('')}</div>
+ <button class="btn orange" style="width:100%" onclick="startBattle('mix',0)">⚔️ ミックス バトル（いろいろ！）</button>
+ </div>${nav()}`;
+}
+function nav(){return `<div class="nav">
+ <button onclick="home()"><span>🏠</span>ホーム</button><button onclick="zukan()"><span>📖</span>ずかん</button>
+ <button onclick="gacha()"><span>🎁</span>ボール${S.balls+S.gold?`<i class="badge">${S.balls+S.gold}</i>`:''}</button>
+ <button onclick="calendar()"><span>📅</span>カレンダー</button><button onclick="choosePartner()"><span>🤝</span>なかま</button><button onclick="parent()"><span>👪</span>おうち</button></div>`}
+function levels(op){
+ const O=OPS[op],u=unlocked(op);
+ app.innerHTML=`<div class="wrap"><div class="topbar"><button class="btn sm gray" onclick="home()">← もどる</button><div class="chip" style="color:${O.c}">${O.sym} ${O.name}</div></div>
+ ${[1,2,3,4].map(l=>{const s=lvStars(op,l),lock=l>u;return `<button class="lv ${lock?'lock':''}" ${lock?'disabled':`onclick="startBattle('${op}',${l})"`}><span class="n" style="background:${O.c}">${lock?'🔒':l}</span>${O.lv[l-1]}<span class="st">${'★'.repeat(s)}<span style="color:#ddd">${'★'.repeat(3-s)}</span></span></button>`}).join('')}
+ <p style="text-align:center;font-weight:700">★2こ いじょうで つぎの レベルが ひらくよ！</p></div>${nav()}`;
+}
+function choosePartner(first){
+ app.innerHTML=`<div class="wrap"><h2 style="text-align:center">${first?'ようこそ！ ポケモン さんすうマスター':'だれと いっしょに がんばる？'}</h2>
+ ${first?`<div class="card" style="margin-bottom:12px"><div style="font-weight:800;margin-bottom:6px">おなまえを いれてね（あとでもOK）</div><input type="text" id="nm" maxlength="8" value="${S.name}" placeholder="なまえ"></div><h3 style="text-align:center">パートナーを えらんでね</h3>`:''}
+ <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${Object.keys(LINES).map(k=>{const xp=S.xp[k]||0,id=LINES[k].ids[stageOf(k,xp)];return `<div class="zk" style="padding:10px;cursor:pointer;${S.line===k?'outline:5px solid var(--y)':''}" onclick="setPartner('${k}')">${img(id)}<div style="font-size:17px">${DEX[id][0]}</div><div style="font-size:12px;opacity:.7">${xp?`XP ${xp}`:'はじめまして'}</div></div>`}).join('')}</div></div>${first?'':nav()}`;
+}
+function setPartner(k){const n=$('#nm');if(n){S.name=n.value.trim()}S.line=k;LINES[k].ids.slice(0,stageOf(k,S.xp[k]||0)+1).forEach(i=>{if(!S.owned[i])S.owned[i]=1});save();sfx.ok();home()}
+
+/* ===== もんだい ===== */
+function gen(op,l){
+ let a,b,ans;
+ if(op==='add'){
+  if(l===1){a=rand(1,8);b=rand(1,10-a)}
+  else if(l===2){if(Math.random()<.65){a=rand(2,9);b=rand(Math.max(2,11-a),9)}else{a=rand(10,18);b=rand(1,Math.min(9,20-a))}}
+  else if(l===3){if(Math.random()<.55){a=rand(11,89);b=rand(2,Math.min(9,99-a))}else{a=rand(1,8)*10;b=rand(1,9-a/10)*10}}
+  else{a=rand(11,80);b=rand(11,99-a)}
+  ans=a+b}
+ else if(op==='sub'){
+  if(l===1){a=rand(3,10);b=rand(1,a-1)}
+  else if(l===2){a=rand(11,18);b=rand(Math.max(2,a%10+1),9)}
+  else if(l===3){a=rand(11,99);b=rand(2,9)}
+  else{a=rand(21,99);b=rand(11,a-1)}
+  ans=a-b}
+ else{
+  const dans=[[2,5],[3,4],[6,7],[8,9]][l-1];let d=pick(dans);if(l===4&&Math.random()<.3)d=rand(2,9);
+  const m=rand(1,9);
+  if(op==='mul'){a=d;b=m;if(Math.random()<.3)[a,b]=[b,a];ans=a*b}
+  else{a=d*m;b=d;ans=m}}
+ return {op,l,a,b,ans,tries:0};
+}
+function genSet(op,l,n=10){
+ const set=[],seen=new Set();let guard=0;
+ while(set.length<n&&guard++<300){
+  let o=op,lv=l;
+  if(op==='mix'){o=pick(OPK);const u=unlocked(o);lv=Math.random()<.5?u:rand(1,u)}
+  const q=gen(o,lv),k=`${q.op}${q.a}_${q.b}`;
+  if(seen.has(k))continue;seen.add(k);set.push(q)}
+ return set;
+}
+
+/* ===== バトル ===== */
+let B=null;
+function startBattle(op,l){
+ const pool=IDS.filter(i=>DEX[i][1]<2||Math.random()<.04);
+ const weighted=pool.flatMap(i=>S.owned[i]?[i]:[i,i,i]);
+ const wild=pick(weighted);
+ B={op,l,q:genSet(op,l),total:10,left:10,first:0,combo:0,wild,ans:'',busy:false,cur:null,xpGain:0,best:0,pid:partnerId(),k:S.line,xp0:S.xp[S.line]||0};
+ app.innerHTML=`<div class="battle">
+ <div class="row sp" style="margin-bottom:4px"><button class="btn sm gray" onclick="quit()">✕</button><div class="chip" id="cmb" style="visibility:hidden">🔥</div>
+ <div style="flex:1"><div style="font-weight:900;font-size:18px" id="wn">やせいの ${DEX[wild][0]} があらわれた！</div><div class="bar hp"><i id="hp" style="width:100%"></i></div></div></div>
+ <div class="field"><div class="wildbox" id="wb">${img(wild)}</div><div class="mybox" id="mb">${img(B.pid)}</div></div>
+ <div class="qcard"><div class="q" id="q"></div><div class="fbk" id="fb"></div><div class="hint" id="hint"></div>
+ <div class="row" style="justify-content:center"><button class="btn sm orange" onclick="hintShow()">💡 ヒント</button><button class="btn sm gray" onclick="readQ()">🔊 よむ</button><span style="font-weight:800" id="prog"></span></div></div>
+ <div class="pad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="press(${n})">${n}</button>`).join('')}<button class="del" onclick="press('d')">⌫</button><button onclick="press(0)">0</button><button class="go" onclick="press('ok')">こたえる</button></div></div>`;
+ nextQ();
+}
+function quit(){popup2('<h2>バトルを やめる？</h2>',[['つづける','green'],['やめる','gray']]).then(i=>{if(i===1){B=null;home()}})}
+function qHTML(q,ans){return `<span>${q.a}</span><span class="op2">${OPS[q.op].sym}</span><span>${q.b}</span><span class="op2">＝</span><span class="ansv">${ans===''?'？':ans}</span>`}
+function nextQ(){
+ if(!B.q.length)return finish();
+ B.cur=B.q.shift();B.ans='';B.busy=false;B.hinted=false;
+ $('#q').innerHTML=qHTML(B.cur,'');$('#fb').textContent='';$('#hint').innerHTML='';
+ $('#prog').textContent=`あと ${B.left}もん`;
+ if(S.voice)readQ();
+}
+function readQ(){const q=B&&B.cur;if(q)say(`${q.a} ${OPS[q.op].say} ${q.b} は？`)}
+function press(k){
+ if(!B||B.busy)return;sfx.tap();
+ if(k==='d')B.ans=B.ans.slice(0,-1);
+ else if(k==='ok'){if(B.ans!=='')return submit()}
+ else if(B.ans.length<3)B.ans=(B.ans==='0'?'':B.ans)+k;
+ $('#q').innerHTML=qHTML(B.cur,B.ans);
+}
+document.addEventListener('keydown',e=>{if(!B)return;if(/^\d$/.test(e.key))press(+e.key);else if(e.key==='Backspace')press('d');else if(e.key==='Enter')press('ok')});
+function hintShow(){
+ const q=B.cur;if(!q)return;B.hinted=true;
+ const dots=(n,c)=>`<div class="hg">${Array.from({length:n},(_,i)=>`<i class="hd ${c}"></i>`).join('')}</div>`;
+ let h='';
+ if(q.op==='add')h=dots(q.a,'')+`<span class="hs">＋</span>`+dots(q.b,'b');
+ else if(q.op==='sub')h=`<div class="hg" style="max-width:260px">${Array.from({length:q.a},(_,i)=>`<i class="hd ${i>=q.a-q.b?'x':''}"></i>`).join('')}</div>`;
+ else if(q.op==='mul')h=Array.from({length:q.a},()=>`<div class="hb">${dots(q.b,'')}</div>`).join('');
+ else h=Array.from({length:q.ans},()=>`<div class="hb">${dots(q.b,'b')}</div>`).join('');
+ $('#hint').innerHTML=h;
+ $('#fb').textContent=q.op==='div'?`${q.b}こずつの グループは いくつ できる？`:q.op==='mul'?`${q.b}こ が ${q.a}グループ！`:q.op==='sub'?'✕ を とった のこりは？':'ぜんぶで いくつ？';
+}
+const PRAISE=['せいかい！','すごい！','やったね！','てんさい！','かんぺき！','いいね！'];
+function submit(){
+ const q=B.cur,ok=+B.ans===q.ans;B.busy=true;
+ const st=S.stats[q.op]||(S.stats[q.op]={a:0,c:0});
+ if(q.tries===0){st.a++;if(ok)st.c++}
+ if(ok){
+  const gain=q.tries===0?5:2;S.xp[B.k]=(S.xp[B.k]||0)+gain;B.xpGain+=gain;
+  if(q.tries===0)B.first++;
+  B.combo++;B.left--;sfx.ok();
+  $('#hp').style.width=B.left/B.total*100+'%';
+  $('#wb').firstElementChild.classList.remove('hit');void $('#wb').offsetWidth;$('#wb').firstElementChild.classList.add('hit');
+  $('#mb').firstElementChild.classList.remove('jump');void $('#mb').offsetWidth;$('#mb').firstElementChild.classList.add('jump');
+  const c=B.combo;$('#cmb').style.visibility=c>=2?'visible':'hidden';$('#cmb').textContent=`🔥 ${c}れんぞく`;
+  $('#fb').innerHTML=`<span style="color:var(--g)">${c>=3&&c%3===0?`${c}れんぞく！！`:pick(PRAISE)} +${gain}</span>`;
+  if(c%5===0)confetti(15);
+  setTimeout(nextQ,850);
+ }else{
+  B.combo=0;$('#cmb').style.visibility='hidden';sfx.ng();
+  $('#q').innerHTML=qHTML(q,q.ans);
+  if(q.tries===0){q.tries=1;B.q.splice(Math.min(2,B.q.length),0,q);$('#fb').innerHTML=`<span style="color:var(--r)">おしい！ こたえは ${q.ans} だよ。あとで もういちど！</span>`}
+  else{B.left--;$('#hp').style.width=B.left/B.total*100+'%';$('#fb').innerHTML=`<span style="color:var(--r)">こたえは ${q.ans}。つぎは できるよ！</span>`}
+  setTimeout(nextQ,1900);
+ }
+ save();
+}
+async function finish(){
+ const b=B,stars=b.first>=9?3:b.first>=7?2:1;
+ const msgs=[];
+ if(b.op!=='mix'){S.stars[b.op+b.l]=Math.max(lvStars(b.op,b.l),stars)}
+ S.balls+=stars;msgs.push(`${pball()} ボール +${stars}`);
+ S.xp[b.k]=(S.xp[b.k]||0)+20;b.xpGain+=20;
+ const t=today();
+ if(S.last!==t){
+  S.streak=(S.last===yesterday())?S.streak+1:1;S.last=t;S.best=Math.max(S.best,S.streak);
+  S.balls++;msgs.push(`🌅 きょうの はじめてボーナス ${pball()} +1`);
+  if([3,7,14,30,50,100].includes(S.streak)){S.gold++;msgs.push(`🔥 ${S.streak}にち れんぞく！ ${pball(1)}スーパーボール +1`)}
+ }
+ S.days[t]=(S.days[t]||0)+1;
+ if(S.daily.date!==t)S.daily={date:t,n:0,done:false};
+ S.daily.n++;
+ let mission=false;
+ if(S.daily.n>=3&&!S.daily.done){S.daily.done=true;S.gold++;S.balls++;mission=true}
+ const isNew=own(b.wild);
+ // しんか
+ const s0=stageOf(b.k,b.xp0),s1=stageOf(b.k,S.xp[b.k]);
+ save();B=null;
+ sfx.ball();
+ await popup(`<h2>モンスターボール、いけー！</h2><div class="pball bigball shake"></div><div style="font-weight:800">ゆらゆら…</div>`,'つかまえる！','btn red');
+ sfx.win();confetti(60);
+ await popup(`<h2>${DEX[b.wild][0]} を つかまえた！</h2>${img(b.wild)}${isNew?'<div class="newtag">NEW！ ずかんに とうろく</div>':'<div style="font-weight:800">また あえたね！</div>'}
+ <div style="font-size:44px;color:#ffb400;margin:8px 0">${'★'.repeat(stars)}<span style="color:#ddd">${'★'.repeat(3-stars)}</span></div>
+ <div style="font-weight:800;font-size:20px">${b.first}/10 もん いっぱつで せいかい！</div>
+ <div style="text-align:left;margin:10px auto;max-width:360px;font-weight:700;line-height:1.7">${msgs.join('<br>')}${mission?`<br>🎯 ミッション クリア！ ${pball(1)}スーパーボール +1、${pball()}+1`:''}<br>⭐ なかよしポイント +${b.xpGain}</div>`,'つぎへ','btn green');
+ if(s1>s0){
+  const L=LINES[b.k].ids;own(L[s1]);save();sfx.evo();confetti(80);
+  await popup(`<h2>おや…？ ${DEX[L[s0]][0]} の ようすが…！</h2>${img(L[s0])}`,'…！','btn orange');
+  confetti(100);
+  await popup(`<h2>おめでとう！<br>${DEX[L[s1]][0]} に しんかした！</h2>${img(L[s1])}<div class="newtag">しんか！</div>`,'やったー！','btn pink');
+ }
+ const i=await popup2(`<h2>どうする？</h2>`,[['もういちど','orange'],['ボールを あける','pink'],['ホーム','gray']]);
+ if(i===0){const p=[b.op,b.l];startBattle(...p)}else if(i===1)gacha();else home();
+}
+
+/* ===== ガチャ ===== */
+function gacha(){
+ app.innerHTML=`<div class="wrap" style="text-align:center"><div class="topbar"><button class="btn sm gray" onclick="home()">← もどる</button><div class="chip">${pball()}× ${S.balls} &nbsp;${pball(1)}× ${S.gold}</div></div>
+ <h2>🎁 ボールを あけよう！</h2><div class="pball bigball" id="gb"></div><div id="gr"></div>
+ <div class="row" style="justify-content:center;margin-top:12px"><button class="btn red" ${S.balls?'':'disabled'} onclick="openBall(0)">${pball()} あける（${S.balls}）</button><button class="btn orange" ${S.gold?'':'disabled'} onclick="openBall(1)">${pball(1)} スーパー（${S.gold}）</button></div>
+ <p style="font-weight:700">バトルで ボールを ゲット！<br>スーパーボールは レアが でやすいよ</p></div>${nav()}`;
+}
+async function openBall(g){
+ if(g?S.gold<1:S.balls<1)return;
+ if(g)S.gold--;else S.balls--;
+ const r=Math.random(),rar=g?(r<.25?2:1):(r<.05?2:r<.3?1:0);
+ const id=pick(BYR(rar));const isNew=own(id);save();
+ sfx.ball();await popup(`<h2>…ドキドキ…</h2><div class="pball bigball shake ${g?'gold':''}"></div>`,'ひらく！',g?'btn orange':'btn red');
+ sfx.win();confetti(rar?90:40);
+ let bonus='';if(!isNew){S.xp[S.line]=(S.xp[S.line]||0)+15;bonus=`<div style="font-weight:800">ダブり！ パートナーに なかよしポイント +15</div>`;save()}
+ await popup(`<div style="font-size:26px;color:#ffb400">${['','★★','★★★'][rar]||'★'}</div><h2>${DEX[id][0]} が でた！</h2>${img(id)}${isNew?'<div class="newtag">NEW！</div>':''}${bonus}`,'やったー！','btn green');
+ gacha();
+}
+
+/* ===== ずかん・カレンダー ===== */
+function zukan(){
+ const got=IDS.filter(i=>S.owned[i]).length;
+ app.innerHTML=`<div class="wrap"><div class="topbar"><h2 style="margin:0">📖 ポケモンずかん</h2><div class="chip">${got} / ${IDS.length}</div></div>
+ <div class="bar"><i style="width:${got/IDS.length*100}%"></i></div>
+ <div class="grid">${IDS.map(i=>{const o=S.owned[i];return `<div class="zk ${o?'':'no'}" ${o?`onclick="zk(${i})"`:''}>${o>1?`<small>×${o}</small>`:''}${img(i)}<div>${o?DEX[i][0]:'？？？'}</div><div style="color:#ffb400;font-size:12px">${o?['','★★','★★★'][DEX[i][1]]||'★':''}</div></div>`}).join('')}</div></div>${nav()}`;
+}
+function zk(i){popup(`<h2>${DEX[i][0]}</h2>${img(i)}<div style="font-size:26px;color:#ffb400">${['★','★★','★★★'][DEX[i][1]]}</div><div style="font-weight:800">${S.owned[i]}ひき ゲット！</div>`,'とじる')}
+let calM=new Date();
+function calendar(){
+ const y=calM.getFullYear(),m=calM.getMonth(),first=new Date(y,m,1).getDay(),dn=new Date(y,m+1,0).getDate(),t=today();
+ let cells=['日','月','火','水','木','金','土'].map(d=>`<div class="h">${d}</div>`).join('')+'<div class="h" style="visibility:hidden"></div>'.repeat(first);
+ let played=0;
+ for(let d=1;d<=dn;d++){const k=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,n=S.days[k];if(n)played++;
+  cells+=`<div class="${n?'on':''} ${k===t?'today':''}"><span class="num">${d}</span>${n?`<i>${n>=3?'🌟':'⭐'}</i>`:''}</div>`}
+ const st=curStreak(),nx=[3,7,14,30,50,100].find(x=>x>st);
+ app.innerHTML=`<div class="wrap"><div class="topbar"><button class="btn sm gray" onclick="calM=new Date(calM.getFullYear(),calM.getMonth()-1,1);calendar()">◀</button><h2 style="margin:0">${y}ねん ${m+1}がつ</h2><button class="btn sm gray" onclick="calM=new Date(calM.getFullYear(),calM.getMonth()+1,1);calendar()">▶</button></div>
+ <div class="card" style="margin-bottom:10px;text-align:center;font-weight:800;font-size:19px">🔥 いま ${st}にち れんぞく（さいこう ${S.best}にち）<br>こんげつ ${played}にち あそんだよ！${nx?`<br><span style="color:var(--o)">あと ${nx-st}にちで ${pball(1)}スーパーボール！</span>`:''}</div>
+ <div class="card"><div class="cal">${cells}</div><div style="text-align:center;font-size:14px;margin-top:8px;font-weight:700">⭐ あそんだ日　🌟 3かい いじょう！</div></div></div>${nav()}`;
+}
+
+/* ===== おうちのひとへ ===== */
+function parent(){
+ const rows=OPK.map(o=>{const s=S.stats[o]||{a:0,c:0},p=s.a?Math.round(s.c/s.a*100):null;return `<tr><td style="color:${OPS[o].c};font-weight:900">${OPS[o].sym} ${OPS[o].name}</td><td>${s.a}もん</td><td>${p===null?'-':p+'%'}</td><td>${[1,2,3,4].map(l=>lvStars(o,l)).join(' / ')}</td></tr>`}).join('');
+ const total=Object.keys(S.days).length;
+ app.innerHTML=`<div class="wrap"><div class="topbar"><h2 style="margin:0">👪 おうちのひとへ</h2></div>
+ <div class="card"><p>あそんだ日数：<b>${total}日</b>　れんぞく：<b>${curStreak()}日</b>（最高${S.best}日）</p>
+ <table><tr><th>けいさん</th><th>かいとうすう</th><th>いっぱつせいかい</th><th>ほし(Lv1/2/3/4)</th></tr>${rows}</table>
+ <p style="font-size:14px">※「いっぱつせいかい」は1回目で正解した割合です。80%以上で次のレベルに進むのが目安です。</p></div>
+ <div class="card" style="margin-top:12px"><div class="row sp"><b>こうかおん</b><button class="btn sm ${S.sound?'green':'gray'}" onclick="S.sound=!S.sound;save();parent()">${S.sound?'ON':'OFF'}</button></div>
+ <div class="row sp" style="margin-top:10px"><b>もんだいを よみあげる</b><button class="btn sm ${S.voice?'green':'gray'}" onclick="S.voice=!S.voice;save();parent()">${S.voice?'ON':'OFF'}</button></div>
+ <div class="row sp" style="margin-top:10px"><b>なまえ</b><input type="text" style="width:180px;font-size:18px;padding:6px" maxlength="8" value="${S.name}" onchange="S.name=this.value.trim();save()"></div>
+ <div style="margin-top:14px;text-align:center"><button class="btn sm red" onclick="resetAll()">データを ぜんぶ けす</button></div></div></div>${nav()}`;
+}
+async function resetAll(){const i=await popup2('<h2>ほんとうに ぜんぶ けす？</h2><p>ずかんも きろくも きえます</p>',[['やめる','green'],['けす','red']]);if(i===1){S=defaults();save();home()}}
+
+home();
+</script>
+</body>
+</html>
